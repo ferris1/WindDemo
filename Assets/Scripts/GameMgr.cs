@@ -95,20 +95,12 @@ public class GameMgr : MonoBehaviour
             Debug.Log("SendMovePakcet ");
         }
     }
-    public void SendJoinRoomPakcet()
-    {
-        var req = new WindNetwork.PlayerJoinRoomRequest();
-        req.PlayerId = playerId;
-        WindNetwork.Agent.GetInstance().SendRequest(req);
-    }
-
     public void OnPlayerMove(WindNetwork.PlayerMoveResponse res)
     {
         if (res.PlayerId == playerId) return;
-        if (!onlinePlayers.ContainsKey(res.PlayerId))
+        if (!onlinePlayers.ContainsKey(res.PlayerId) && res.PlayerId!=playerId)
         {
-            Debug.LogError($"no target:{res.PlayerId} move");
-            return;
+            PlayerJoinRoom(res.PlayerId);
         }
 
         var target = onlinePlayers[res.PlayerId];
@@ -121,6 +113,13 @@ public class GameMgr : MonoBehaviour
             target._look.y = res.Look.Y;
         }
     }
+    public void SendJoinRoomPakcet()
+    {
+        var req = new WindNetwork.PlayerJoinRoomRequest();
+        req.PlayerId = playerId;
+        WindNetwork.Agent.GetInstance().SendRequest(req);
+    }
+   
 
     public void OnPlayerJoinRoom(WindNetwork.PlayerJoinRoomResponse res)
     {
@@ -135,12 +134,50 @@ public class GameMgr : MonoBehaviour
                 Debug.Log($"always in room:{res.PlayerId}");
                 return;
             }
-            var playerInst = Instantiate(Player, onlineRoot);
-            playerInst.SetActive(true);
-            onlinePlayers[res.PlayerId] = playerInst.GetComponent<PlayerMovementInputController>();
-            Debug.Log($"OnPlayerJoinRoom {res.PlayerId}");
+            PlayerJoinRoom(res.PlayerId);
         }
 
     }
+    public void PlayerJoinRoom(string playerId)
+    {
+        var playerInst = Instantiate(Player);
+        playerInst.SetActive(true);
+        onlinePlayers[playerId] = playerInst.GetComponent<PlayerMovementInputController>();
+        Debug.Log($"OnPlayerJoinRoom {playerId}");
+    }
 
+    public void OnPlayerUpdateTransform(WindNetwork.PlayerUpdateTransformResponse res)
+    {
+        if (res.PlayerId == playerId) return;
+        if (!onlinePlayers.ContainsKey(res.PlayerId))
+        {
+            PlayerJoinRoom(res.PlayerId);
+        }
+
+        var target = onlinePlayers[res.PlayerId];
+
+        target.gameObject.transform.position = new Vector3(res.Position.X, res.Position.Y, res.Position.Z);
+        target.gameObject.transform.rotation = Quaternion.Euler(0, res.Rotation.Y, 0);
+        Debug.LogError($"OnPlayerUpdateTransform:{res.PlayerId}  position:{target.gameObject.transform.position}  " +
+            $"rotation:{target.gameObject.transform.rotation}");
+       
+    }
+
+    public void SendPlayerTransform()
+    {
+        var req = new WindNetwork.PlayerUpdateTransformRequest();
+        req.PlayerId = playerId;
+        req.Position = new WindNetwork.Vector3();
+        req.Position.X = _movement.transform.position.x;
+        req.Position.Y = _movement.transform.position.y;
+        req.Position.Z = _movement.transform.position.z;
+
+        req.Rotation = new WindNetwork.Vector3();
+        req.Rotation.X = _movement.transform.rotation.x;
+        req.Rotation.Y = _movement.transform.rotation.y;
+        req.Rotation.Z = _movement.transform.rotation.z;
+        WindNetwork.Agent.GetInstance().SendRequest(req);
+        Debug.LogError($"SendPlayerTransform position:{playerId} {_movement.transform.position}  " +
+            $"rotation:{_movement.transform.rotation}");
+    }
 }

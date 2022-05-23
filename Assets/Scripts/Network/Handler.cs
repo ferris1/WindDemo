@@ -28,6 +28,11 @@ public static partial class WindHandler
         Debug.Log($"recv packet:{pck}");
         GameMgr.inst.OnPlayerJoinRoom(pck);
     }
+    public static void On_PlayerUpdateTransformResponse(WindNetwork.PlayerUpdateTransformResponse pck)
+    {
+        Debug.Log($"recv packet:{pck}");
+        GameMgr.inst.OnPlayerUpdateTransform(pck);
+    }
 
 }
 

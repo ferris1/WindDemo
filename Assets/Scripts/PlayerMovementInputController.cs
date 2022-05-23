@@ -76,7 +76,11 @@ public class PlayerMovementInputController : MonoBehaviour
         }
 
         followTransform.transform.localEulerAngles = angles;
-
+        if (Time.realtimeSinceStartup - lastTime > 0.5)
+        {
+            lastTime = Time.realtimeSinceStartup;
+            GameMgr.inst.SendPlayerTransform();
+        }
         if (_move.x == 0 && _move.y == 0) 
         {   
             nextPosition = transform.position;
@@ -94,5 +98,8 @@ public class PlayerMovementInputController : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0, followTransform.transform.rotation.eulerAngles.y, 0);
         followTransform.transform.localEulerAngles = new Vector3(angles.x, 0, 0);
+        
     }
+
+   
 }
