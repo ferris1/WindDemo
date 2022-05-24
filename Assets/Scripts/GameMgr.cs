@@ -4,6 +4,11 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
+public class MessInfo
+{
+    public string speakId;
+    public string word;
+}
 
 public class GameMgr : MonoBehaviour
 {
@@ -13,13 +18,20 @@ public class GameMgr : MonoBehaviour
     public Transform onlineRoot;
     public GameObject Player;
 
-    private Dictionary<string, PlayerMovementInputController> onlinePlayers; 
+    private Dictionary<string, PlayerMovementInputController> onlinePlayers;
     public InputField input;
     private bool inGame;
     private static readonly List<Action> executeOnMainThread = new List<Action>();
     private static readonly List<Action> executeCopiedOnMainThread = new List<Action>();
     private static bool actionToExecuteOnMainThread = false;
     private string playerId = "WindNetwork";
+
+    public GameObject SpeakPanel;
+    public GameObject MessRoot;
+    public GameObject MessText;
+    public InputField messInput;
+    private List<MessInfo> WordList = new List<MessInfo>();
+
 
     private void Awake()
     {
@@ -31,7 +43,8 @@ public class GameMgr : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        SpeakPanel.SetActive(false);
+        ConnectPanel.SetActive(true);
     }
 
     // Update is called once per frame
@@ -42,7 +55,7 @@ public class GameMgr : MonoBehaviour
 
     public void OnNetConnect(bool result)
     {
-        if(result)
+        if (result)
         {
             Debug.Log("OnNetConnect send PlayerLoginRequest ");
             var req = new WindNetwork.PlayerLoginRequest();
@@ -98,7 +111,7 @@ public class GameMgr : MonoBehaviour
     public void OnPlayerMove(WindNetwork.PlayerMoveResponse res)
     {
         if (res.PlayerId == playerId) return;
-        if (!onlinePlayers.ContainsKey(res.PlayerId) && res.PlayerId!=playerId)
+        if (!onlinePlayers.ContainsKey(res.PlayerId) && res.PlayerId != playerId)
         {
             PlayerJoinRoom(res.PlayerId);
         }
@@ -119,13 +132,14 @@ public class GameMgr : MonoBehaviour
         req.PlayerId = playerId;
         WindNetwork.Agent.GetInstance().SendRequest(req);
     }
-   
+
 
     public void OnPlayerJoinRoom(WindNetwork.PlayerJoinRoomResponse res)
     {
         if (res.PlayerId == playerId)
         {
             inGame = true;
+            SpeakPanel.SetActive(true);
         }
         else
         {
@@ -158,9 +172,9 @@ public class GameMgr : MonoBehaviour
 
         target.gameObject.transform.position = new Vector3(res.Position.X, res.Position.Y, res.Position.Z);
         target.gameObject.transform.rotation = Quaternion.Euler(0, res.Rotation.Y, 0);
-        Debug.LogError($"OnPlayerUpdateTransform:{res.PlayerId}  position:{target.gameObject.transform.position}  " +
-            $"rotation:{target.gameObject.transform.rotation}");
-       
+        //Debug.LogError($"OnPlayerUpdateTransform:{res.PlayerId}  position:{target.gameObject.transform.position}  " +
+        //   $"rotation:{target.gameObject.transform.rotation}");
+
     }
 
     public void SendPlayerTransform()
@@ -179,5 +193,50 @@ public class GameMgr : MonoBehaviour
         WindNetwork.Agent.GetInstance().SendRequest(req);
         Debug.LogError($"SendPlayerTransform position:{playerId} {_movement.transform.position}  " +
             $"rotation:{_movement.transform.rotation}");
+    }
+
+    public void OnPlayerSpeak(WindNetwork.SpeakOnWorldResponse pck)
+    {
+        var data = new MessInfo();
+        data.speakId = pck.SpeakId;
+        data.word = pck.Content;
+        WordList.Add(data);
+        var MaxCount = Math.Max(WordList.Count, MessRoot.transform.childCount);
+        for (int i = 0; i < MaxCount; i++)
+        {
+
+            GameObject obj;
+            bool isShow = true;
+            if (i + 1 <= MessRoot.transform.childCount)
+            {
+                obj = MessRoot.transform.GetChild(i).gameObject;
+                if (i + 1 > WordList.Count)
+                {
+                    obj.SetActive(false);
+                    isShow = false;
+                }
+            }
+            else
+            {
+                obj = Instantiate(MessText, MessRoot.transform);
+            }
+            if (isShow)
+            {
+                obj.SetActive(true);
+                var info = WordList[i];
+                obj.GetComponent<Text>().text = $"{info.speakId}: {info.word}";
+            }
+        }
+    }
+
+    public void OnPlayerSend()
+    {
+        if (messInput.text == "") return;
+        var req = new WindNetwork.SpeakOnWorldRequest();
+        req.PlayerId = playerId;
+        req.Name = playerId;
+        req.Content = messInput.text;
+        WindNetwork.Agent.GetInstance().SendRequest(req);
+        messInput.text = "";
     }
 }

@@ -42,7 +42,7 @@ public class PlayerMovementInputController : MonoBehaviour
 
     public void OnAim(InputValue value)
     {
-        aimValue = value.Get<float>();
+        //aimValue = value.Get<float>();
     }
     
     public void OnFire(InputValue value)
@@ -79,7 +79,7 @@ public class PlayerMovementInputController : MonoBehaviour
         if (Time.realtimeSinceStartup - lastTime > 0.5)
         {
             lastTime = Time.realtimeSinceStartup;
-            GameMgr.inst.SendPlayerTransform();
+            //GameMgr.inst.SendPlayerTransform();
         }
         if (_move.x == 0 && _move.y == 0) 
         {   

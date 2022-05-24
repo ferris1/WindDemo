@@ -17,10 +17,12 @@ public static partial class WindHandler
     public static void On_SpeakOnWorldResponse(WindNetwork.SpeakOnWorldResponse pck)
     {
         Debug.Log($"recv packet:{pck}");
+        GameMgr.inst.OnPlayerSpeak(pck);
+        
     }
     public static void On_PlayerMoveResponse(WindNetwork.PlayerMoveResponse pck)
     {
-        Debug.Log($"recv packet:{pck}");
+        //Debug.Log($"recv packet:{pck}");
         GameMgr.inst.OnPlayerMove(pck);
     }
     public static void On_PlayerJoinRoomResponse(WindNetwork.PlayerJoinRoomResponse pck)
