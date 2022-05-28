@@ -86,7 +86,7 @@ public class GameMgr : MonoBehaviour
         if (input.text != "")
         {
             playerId = input.text;
-            WindNetwork.Agent.GetInstance().ConnectToServer();
+            WindNetwork.Agent.GetInstance().ConnectToServer("127.0.0.1", 50100);
         }
         else
         {
