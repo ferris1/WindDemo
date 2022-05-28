@@ -76,10 +76,10 @@ public class PlayerMovementInputController : MonoBehaviour
         }
 
         followTransform.transform.localEulerAngles = angles;
-        if (Time.realtimeSinceStartup - lastTime > 0.5)
+        if (Time.realtimeSinceStartup - lastTime > 1)
         {
             lastTime = Time.realtimeSinceStartup;
-            //GameMgr.inst.SendPlayerTransform();
+            GameMgr.inst.SendPlayerTransform();
         }
         if (_move.x == 0 && _move.y == 0) 
         {   

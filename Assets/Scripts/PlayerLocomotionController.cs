@@ -16,7 +16,7 @@ public class PlayerLocomotionController : MonoBehaviour
     {
         _movement = GetComponent<PlayerMovementInputController>();
         _animator = GetComponent<Animator>();
-        GameMgr.inst._movement = _movement;
+        
     }
     public bool shouldMove;
     public bool shouldTurn;
