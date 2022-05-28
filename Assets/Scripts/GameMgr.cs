@@ -38,7 +38,6 @@ public class GameMgr : MonoBehaviour
     private void Awake()
     {
         inst = this;
-        WindNetwork.Agent.GenInstance();
         onlinePlayers = new Dictionary<string, PlayerMovementInputController>();
     }
 

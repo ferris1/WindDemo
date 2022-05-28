@@ -46,7 +46,6 @@ namespace WindNetwork
 
         private Agent()
         {
-            MsgPack.GenInstance();
             RequestQue = new ConcurrentQueue<ClientRequest>();
             MessageQue = new ConcurrentQueue<ServerMessage>();
             thread = new Thread(RequestThread);
@@ -60,20 +59,9 @@ namespace WindNetwork
 
             if (_instance == null)
             {
-                Debug.LogError($"instance is:{_instance}");
+                _instance = new Agent();
             }
             return _instance;
-        }
-
-        public static void GenInstance()
-        {
-
-            if (_instance != null)
-            {
-                Debug.Log("re Gen Agent instance");
-                return;
-            }
-            _instance = new Agent();
         }
 
         #region Connect
@@ -122,7 +110,7 @@ namespace WindNetwork
         // 网络线程  处理发送数据与接受数据
         private void RequestThread()
         {
-            Thread.CurrentThread.Name = "Network";
+            Thread.CurrentThread.Name = "WindNetwork";
             while (!stopped)
             {
                 try
