@@ -113,7 +113,6 @@ public class GameMgr : MonoBehaviour
         req.Look.X = _movement._look.x;
         req.Look.Y = _movement._look.y;
         WindNetwork.Agent.GetInstance().SendRequest(req);
-        Debug.Log($"111SendMovePakcet {playerId} _move.x£º{req.Move.X}, _move.y£º{req.Move.Y}");
 
     }
     public void OnPlayerMove(WindNetwork.PlayerMoveResponse res)
@@ -133,7 +132,6 @@ public class GameMgr : MonoBehaviour
             target._look.x = res.Look.X;
             target._look.y = res.Look.Y;
         }
-        Debug.Log($"OnPlayerMove {res.PlayerId} _move.x£º{res.Move.X}, _move.y£º{res.Move.Y}");
     }
     public void SendJoinRoomPakcet()
     {
@@ -167,7 +165,6 @@ public class GameMgr : MonoBehaviour
         var playerInst = Instantiate(Player);
         playerInst.SetActive(true);
         onlinePlayers[playerId] = playerInst.GetComponent<PlayerMovementInputController>();
-        Debug.Log($"OnPlayerJoinRoom {playerId}");
     }
 
     public void OnPlayerUpdateTransform(WindNetwork.PlayerUpdateTransformResponse res)
@@ -182,8 +179,6 @@ public class GameMgr : MonoBehaviour
 
         target.gameObject.transform.position = new Vector3(res.Position.X, res.Position.Y, res.Position.Z);
         target.gameObject.transform.rotation = Quaternion.Euler(0, res.Rotation.Y, 0);
-        Debug.LogError($"OnPlayerUpdateTransform:{res.PlayerId}  position:{target.gameObject.transform.position}  " +
-           $"rotation:{target.gameObject.transform.rotation}");
 
     }
 
@@ -201,8 +196,7 @@ public class GameMgr : MonoBehaviour
         req.Rotation.Y = _movement.transform.rotation.y;
         req.Rotation.Z = _movement.transform.rotation.z;
         WindNetwork.Agent.GetInstance().SendRequest(req);
-        Debug.LogError($"SendPlayerTransform position:{playerId} {_movement.transform.position}  " +
-            $"rotation:{_movement.transform.rotation}");
+       
     }
 
     public void OnPlayerSpeak(WindNetwork.SpeakOnWorldResponse pck)
